@@ -6,6 +6,7 @@ README = open(os.path.join(here, 'README.md')).read()
 
 setup(
     name='django-tradukoj',
+    python_requires='>=3.6.0',
     version='1.0',
     packages=['tradukoj'],
     description='A django IETF\'s BCP 47 DB-based translation system',
