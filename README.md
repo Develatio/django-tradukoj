@@ -8,6 +8,8 @@
 Tradujok is a django db-based translation system with IETF's BCP 47 standard support
 and django-rest-framework serializers.
 
+Tradukoj can be integrated with common js i18n libs thanks to his JSON tree generation feature.
+
 This app is maintained and internally used by Develatio Technologies.
 
 ## Requierements
@@ -21,12 +23,13 @@ This app is maintained and internally used by Develatio Technologies.
 * Namespaces to separate projects or big sections of your app
 * JSON tree generation with your translations
 * django-rest-framework urls/views/serializers
-* django-rest-framework fields to be used in serializers with fallback feature
+* django-rest-framework fields to be used in serializers
+* Fallback translation for drf fields
 * Translate model fields
-* Languaje detection
+* Languaje detection endpoint
 * RTL - LTR support
-* .po files Import/Export
-* Public/Private translations separation
+* PO files Import/Export
+* Public/Private translations isolation
 
 ## Quick start
 
@@ -389,3 +392,66 @@ admin.site.register(models.Translation, TranslationAdmin)
 admin.site.register(models.BCP47)
 
 ```
+
+
+### Vue.js: Translate fields POC
+
+Assuming that you are storing your current languaje tag in `store.state.i18n.active_langtag`,
+use this POC vuejs code:
+
+create a `plugins/tradukoj-translate.js` with this content:
+
+```
+import store from "../store";
+
+const TradukojTranslatable = {
+  install(Vue) {
+    Vue.mixin({
+      methods: {
+        $tradukojTranslate(translatable) {
+          if (!translatable) {
+            return "";
+          }
+
+          if (
+            translatable.translations &&
+            translatable.translations[store.state.i18n.active_langtag]
+          ) {
+            return translatable.translations[
+              store.state.i18n.active_langtag
+            ];
+          }
+
+          if (translatable.fallback) {
+            return translatable.fallback;
+          }
+
+          return "";
+        }
+      }
+    });
+  }
+};
+export default TradukojTranslatable;
+```
+
+Register globally:
+
+```
+import TradukojTranslatable from "@/plugins/tradukoj-translatable";
+Vue.use(TradukojTranslatable);
+```
+
+Use in component:
+
+```
+<template>
+  <div>
+    <p>{{ $tradukojTranslate(mymodel.name) }}</p>
+  </div>
+</template>
+[...]
+```
+
+Once you change the value of `store.state.i18n.active_langtag`, the translations will be
+automatically updated to current selected lang.
