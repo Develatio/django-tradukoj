@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-1.0-blue.svg?cacheSeconds=2592000)
+![version](https://img.shields.io/badge/version-1.0.1-blue.svg?cacheSeconds=2592000)
 [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
 [![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-370/)
 ![t](https://img.shields.io/badge/status-stable-green.svg)
@@ -12,9 +12,9 @@ This app is maintained and internally used by Develatio Technologies.
 
 ## Requierements
 
-* Python: 3.6, 3.7
+* Python: >= 3.6
 
-* Django: 2.1, 2.2
+* Django: >= 2.1, 2.2
 
 ## Features
 
