@@ -1,12 +1,17 @@
+![version](https://img.shields.io/badge/version-1.0-blue.svg?cacheSeconds=2592000)
+
 # Tradukoj
 
 Tradujok is a django db-based translation system with IETF's BCP 47 standard support
 and django-rest-framework serializers.
 
+This app is maintained and internally used by Develatio Technologies.
+
 ## Requierements
 
 * Python: 3.6, 3.7
-* Django: 2.0, 2.1, 2.2
+
+* Django: 2.1, 2.2
 
 ## Features
 
@@ -22,21 +27,25 @@ and django-rest-framework serializers.
 
 ## Quick start
 
-1. Add "tradukoj" to INSTALLED_APPS:
-  INSTALLED_APPS = {
+1.  Install `pip install django-tradukoj`
+
+2. Add "tradukoj" to INSTALLED_APPS:
+
+```
+INSTALLED_APPS = {
     ...
     'tradukoj'
-  }
+}
+```
 
-2. Include the tradukoj URLconf in urls.py:
-  url(r'^tradukoj/', include('tradukoj.urls'))
+3. Include the tradukoj URLconf in urls.py: `url(r'^tradukoj/', include('tradukoj.urls'))`
 
-3. Run `python manage.py migrate` to create models.
+4. Run `python manage.py migrate` to create db records.
 
 
 ## Translate model fields
 
-Use OneToOneTradukojField:
+Usage of `OneToOneTradukojField`:
 
 ```
 from tradukoj.fields import OneToOneTradukojField
@@ -81,7 +90,7 @@ class MyModel(models.Model):
 ## Custom key name:
 
 If you dont specify a key for translation, a random one will be generated. To
-specify a key, you should pass it as argument to TranslationKey:
+specify a key, you should pass it as argument to `TranslationKey`:
 
 ```
 >>> instance.name = TranslationKey(init_namespace='test', text='A translatable string', public=True)
@@ -129,9 +138,9 @@ results into this json object:
 
 ## API REST Endpoints
 
-* Languaje detection: YOUR_API_URL/tradukoj/bestlangtag/
-Asking from es-ES;en (spanish-Spain,english) a web with only
-es-MX (spanish-Mexico) lang:
+* Languaje detection: `YOUR_API_URL/tradukoj/bestlangtag/`
+Asking from `es-ES;en` (spanish-Spain,english) a web with only
+`es-MX` (spanish-Mexico) lang:
 
 ```
 [
@@ -153,7 +162,7 @@ es-MX (spanish-Mexico) lang:
 ]
 ```
 
-* Available langs: YOUR_API_URL/tradukoj/available/
+* Available langs: `YOUR_API_URL/tradukoj/available/`
 ```
 {
     "count": 28,

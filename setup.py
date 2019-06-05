@@ -6,10 +6,11 @@ README = open(os.path.join(here, 'README.md')).read()
 
 setup(
     name='django-tradukoj',
-    version='0.1',
+    version='1.0',
     packages=['tradukoj'],
     description='A django IETF\'s BCP 47 DB-based translation system',
     long_description=README,
+    long_description_content_type='text/markdown',
     author='Develatio Technologies S.L.',
     author_email='contacto@develat.io',
     url='https://github.com/develatio/django-tradukoj/',
