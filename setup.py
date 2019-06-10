@@ -1,5 +1,5 @@
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.md')).read()
@@ -8,7 +8,7 @@ setup(
     name='django-tradukoj',
     python_requires='>=3.6.0',
     version='1.0.2',
-    packages=['tradukoj'],
+    packages=find_packages(exclude=['tests*']),
     description='A django IETF\'s BCP 47 DB-based translation system',
     long_description=README,
     long_description_content_type='text/markdown',
