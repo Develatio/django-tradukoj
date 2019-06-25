@@ -22,11 +22,8 @@ language-extlang-script-region-variant-extension-privateuse
 from tempfile import NamedTemporaryFile
 from django.db import models
 from django.core.cache import cache
-from django.conf import settings
-
 import polib
 
-DEFAULT_LANGUAGE_TRADUKOJ = getattr(settings, 'DEFAULT_LANGUAGE_TRADUKOJ')
 
 class BCP47(models.Model):
     DIRECTION_LTR = 0
@@ -114,25 +111,24 @@ class TranslationKey(models.Model):
 
         translation.save()
 
-    def get_translation(self, langtag):
+    def get_translation(self, langtag=None):
         try:
+            if not langtag:
+                translation = self.translations.get(bcp47__default=True)
+                return translation
             translation = self.translations.get(bcp47__langtag=langtag)
             return translation
         except Translation.DoesNotExist:
             return None
 
-    def get_other_translation(self, langtag):
-        try:
-            translation = self.translations.all().exclude(bcp47__langtag=langtag).first()
-            return translation
-        except Translation.DoesNotExist:
-            return None
+    def get_translation_str(self, langtag=None):
+        translation = self.get_translation(langtag)
+        if not translation:
+            return ''
+        return translation.str_translation()
 
     def __str__(self):
-        translation = self.get_translation(DEFAULT_LANGUAGE_TRADUKOJ)
-        if not translation:
-            translation = self.get_other_translation(DEFAULT_LANGUAGE_TRADUKOJ)
-        return str(translation if translation else f"{self.namespace} - {self.text}")
+        return f"{self.namespace}.{self.text}"
 
     class Meta:
         unique_together = (
@@ -274,7 +270,9 @@ class Translation(models.Model):
         return cache.set(cache_string, data)
 
     def __str__(self):
-        return str(self.str_translation())
+        if self.is_largue:
+            return f"({self.bcp47}) {self.key} => {self.largue}"
+        return f"({self.bcp47}) {self.key} => {self.small}"
 
 
 class GetTextFile(models.Model):
@@ -282,9 +280,7 @@ class GetTextFile(models.Model):
     FILE_TYPE_MO = 1
     FILE_TYPE_CHOICES = ((FILE_TYPE_PO, 'PO file'), (FILE_TYPE_MO, 'MO file'))
 
-    file = models.FileField(
-        upload_to='uploads/tradukoj'
-    )
+    file = models.FileField(upload_to='uploads/tradukoj')
     file_type = models.IntegerField(default=0, choices=FILE_TYPE_CHOICES)
     bcp47 = models.ForeignKey(
         BCP47,
@@ -336,7 +332,6 @@ class GetTextFile(models.Model):
                 translation.save()
             tmpfile.close()
 
-
-
     def __str__(self):
-        return "{0} {1} {2} ".format(self.bcp47, self.namespace.text, self.file)
+        return "{0} {1} {2} ".format(self.bcp47, self.namespace.text,
+                                     self.file)
