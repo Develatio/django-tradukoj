@@ -22,8 +22,11 @@ language-extlang-script-region-variant-extension-privateuse
 from tempfile import NamedTemporaryFile
 from django.db import models
 from django.core.cache import cache
+from django.conf import settings
+
 import polib
 
+DEFAULT_LANGUAGE_TRADUKOJ = getattr(settings, 'DEFAULT_LANGUAGE_TRADUKOJ')
 
 class BCP47(models.Model):
     DIRECTION_LTR = 0
@@ -118,8 +121,18 @@ class TranslationKey(models.Model):
         except Translation.DoesNotExist:
             return None
 
+    def get_other_translation(self, langtag):
+        try:
+            translation = self.translations.all().exclude(bcp47__langtag=langtag).first()
+            return translation
+        except Translation.DoesNotExist:
+            return None
+
     def __str__(self):
-        return f"{self.namespace}.{self.text}"
+        translation = self.get_translation(DEFAULT_LANGUAGE_TRADUKOJ)
+        if not translation:
+            translation = self.get_other_translation(DEFAULT_LANGUAGE_TRADUKOJ)
+        return str(translation if translation else f"{self.namespace} - {self.text}")
 
     class Meta:
         unique_together = (
@@ -261,9 +274,7 @@ class Translation(models.Model):
         return cache.set(cache_string, data)
 
     def __str__(self):
-        if self.is_largue:
-            return f"({self.bcp47}) {self.key} => {self.largue}"
-        return f"({self.bcp47}) {self.key} => {self.small}"
+        return str(self.str_translation())
 
 
 class GetTextFile(models.Model):
