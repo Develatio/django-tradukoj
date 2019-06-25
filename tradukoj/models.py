@@ -111,12 +111,21 @@ class TranslationKey(models.Model):
 
         translation.save()
 
-    def get_translation(self, langtag):
+    def get_translation(self, langtag=None):
         try:
+            if not langtag:
+                translation = self.translations.get(bcp47__default=True)
+                return translation
             translation = self.translations.get(bcp47__langtag=langtag)
             return translation
         except Translation.DoesNotExist:
             return None
+
+    def get_translation_str(self, langtag=None):
+        translation = self.get_translation(langtag)
+        if not translation:
+            return ''
+        return translation.str_translation()
 
     def __str__(self):
         return f"{self.namespace}.{self.text}"
@@ -271,9 +280,7 @@ class GetTextFile(models.Model):
     FILE_TYPE_MO = 1
     FILE_TYPE_CHOICES = ((FILE_TYPE_PO, 'PO file'), (FILE_TYPE_MO, 'MO file'))
 
-    file = models.FileField(
-        upload_to='uploads/tradukoj'
-    )
+    file = models.FileField(upload_to='uploads/tradukoj')
     file_type = models.IntegerField(default=0, choices=FILE_TYPE_CHOICES)
     bcp47 = models.ForeignKey(
         BCP47,
@@ -325,7 +332,6 @@ class GetTextFile(models.Model):
                 translation.save()
             tmpfile.close()
 
-
-
     def __str__(self):
-        return "{0} {1} {2} ".format(self.bcp47, self.namespace.text, self.file)
+        return "{0} {1} {2} ".format(self.bcp47, self.namespace.text,
+                                     self.file)
