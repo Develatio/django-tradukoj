@@ -26,7 +26,7 @@ from django.conf import settings
 
 import polib
 
-DEFAULT_LANGUAGE_TRADUKOJ = getattr(settings, 'DEFAULT_LANGUAGE_TRADUKOJ', 'es-MX')
+DEFAULT_LANGUAGE_TRADUKOJ = getattr(settings, 'DEFAULT_LANGUAGE_TRADUKOJ')
 
 class BCP47(models.Model):
     DIRECTION_LTR = 0
