@@ -147,8 +147,17 @@ class PublicTranslationRetrieve(generics.RetrieveAPIView):
         )
 
 
+class PublicNamespaceTranslationRetrieve(PublicTranslationRetrieve):
+    """Public endpoint to retrieve namespace based single translation"""
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(
+            key__namespace__text=self.kwargs.get('namespace'),
+        )
+
+
 class PrivateTranslationList(generics.ListAPIView):
-    """Private (auth requiered) endpoint to list translations"""
+    """Private (auth required) endpoint to list translations"""
     queryset = Translation.objects.filter(bcp47__enabled=True)
     serializer_class = TranslationSerializer
     filterset_fields = ('bcp47__langtag', 'key__text', 'key__namespace__text')
@@ -156,7 +165,7 @@ class PrivateTranslationList(generics.ListAPIView):
 
 
 class PrivateTranslationRetrieve(generics.RetrieveAPIView):
-    """Private (auth requiered) endpoint retrieve single translation"""
+    """Private (auth required) endpoint retrieve single translation"""
     queryset = Translation.objects.filter(bcp47__enabled=True)
     serializer_class = TranslationSerializer
     lookup_field = 'key__text'
@@ -167,6 +176,15 @@ class PrivateTranslationRetrieve(generics.RetrieveAPIView):
         return Translation.objects.filter(
             bcp47__enabled=True,
             bcp47__langtag=self.kwargs.get('langtag'),
+        )
+
+
+class PrivateNamespaceTranslationRetrieve(PrivateTranslationRetrieve):
+    """Private (auth required) endpoint retrieve namespace based single translation"""
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(
+            key__namespace__text=self.kwargs.get('namespace'),
         )
 
 
