@@ -144,12 +144,11 @@ class PublicTranslationRetrieve(generics.RetrieveAPIView):
             key__public=True,
             bcp47__enabled=True,
             bcp47__langtag=self.kwargs.get('langtag'),
-            key__namespace__text=self.kwargs.get('namespace'),
         )
 
 
 class PrivateTranslationList(generics.ListAPIView):
-    """Private (auth required) endpoint to list translations"""
+    """Private (auth requiered) endpoint to list translations"""
     queryset = Translation.objects.filter(bcp47__enabled=True)
     serializer_class = TranslationSerializer
     filterset_fields = ('bcp47__langtag', 'key__text', 'key__namespace__text')
@@ -157,7 +156,7 @@ class PrivateTranslationList(generics.ListAPIView):
 
 
 class PrivateTranslationRetrieve(generics.RetrieveAPIView):
-    """Private (auth required) endpoint retrieve single translation"""
+    """Private (auth requiered) endpoint retrieve single translation"""
     queryset = Translation.objects.filter(bcp47__enabled=True)
     serializer_class = TranslationSerializer
     lookup_field = 'key__text'
@@ -168,7 +167,6 @@ class PrivateTranslationRetrieve(generics.RetrieveAPIView):
         return Translation.objects.filter(
             bcp47__enabled=True,
             bcp47__langtag=self.kwargs.get('langtag'),
-            key__namespace__text=self.kwargs.get('namespace'),
         )
 
 
