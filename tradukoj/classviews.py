@@ -144,14 +144,6 @@ class PublicTranslationRetrieve(generics.RetrieveAPIView):
             key__public=True,
             bcp47__enabled=True,
             bcp47__langtag=self.kwargs.get('langtag'),
-        )
-
-
-class PublicNamespaceTranslationRetrieve(PublicTranslationRetrieve):
-    """Public endpoint to retrieve namespace based single translation"""
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset.filter(
             key__namespace__text=self.kwargs.get('namespace'),
         )
 
@@ -176,14 +168,6 @@ class PrivateTranslationRetrieve(generics.RetrieveAPIView):
         return Translation.objects.filter(
             bcp47__enabled=True,
             bcp47__langtag=self.kwargs.get('langtag'),
-        )
-
-
-class PrivateNamespaceTranslationRetrieve(PrivateTranslationRetrieve):
-    """Private (auth required) endpoint retrieve namespace based single translation"""
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset.filter(
             key__namespace__text=self.kwargs.get('namespace'),
         )
 
