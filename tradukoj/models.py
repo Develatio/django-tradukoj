@@ -21,6 +21,8 @@ language-extlang-script-region-variant-extension-privateuse
 """
 from tempfile import NamedTemporaryFile
 from django.db import models
+# Future use
+# from django.db import DEFAULT_DB_ALIAS, connections
 from django.core.cache import cache
 import polib
 
@@ -162,6 +164,12 @@ class Translation(models.Model):
             'bcp47',
         )
 
+    # Future use
+    # @staticmethod
+    # def database_has_jsonb_agg():
+    #     connection = connections[DEFAULT_DB_ALIAS]
+    #     return connection.features.has_jsonb_agg
+
     def str_translation(self):
         if self.is_largue:
             return self.largue
@@ -201,7 +209,8 @@ class Translation(models.Model):
         queryset = Translation.objects.filter(
             key__namespace__text=namespace,
             bcp47__enabled=True,
-            bcp47__langtag=langtag)
+            bcp47__langtag=langtag,
+        ).annotate(annotate_key_text=models.F('key__text'))
 
         cache_string = 'tradukoj_priv_tr_{0}_{1}'.format(langtag, namespace)
         if public:
@@ -224,7 +233,7 @@ class Translation(models.Model):
             # data[langtag][namespace]['login'] = {}
             # data[langtag][namespace]['login']['form'] = {}
             # data[langtag][namespace]['login']['form']['username'] = 'traduccion'
-            deep = translation.key.text.split('.')
+            deep = translation.annotate_key_text.split('.')
             _current_node = data[langtag][namespace]
             for i, element in enumerate(deep):
                 # en el último elemento dejamos de profundizar y colocamos la traducción
