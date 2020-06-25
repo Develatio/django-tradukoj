@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-from langcodes import best_match
 from django.utils.translation import ugettext_lazy as _
-from django.utils.translation.trans_real import parse_accept_lang_header
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import ValidationError
-from .models import Translation, BCP47
+from .models import Translation, BCP47, best_langtag_list
 from .serializers import (TranslationSerializer, BCP47Serializer)
 
 
@@ -79,9 +77,19 @@ class PublicTranslationRawList(generics.ListAPIView):
         langtag = request.query_params.get('bcp47__langtag')
         namespace = request.query_params.get('key__namespace__text')
         if langtag is None:
-            raise ValidationError({'bcp47__lang': _('This field is required.')}, code='required')
+            raise ValidationError(
+                {
+                    'bcp47__lang': _('This field is required.')
+                },
+                code='required',
+            )
         if namespace is None:
-            raise ValidationError({'key__namespace__text': _('This field is required.')}, code='required')
+            raise ValidationError(
+                {
+                    'key__namespace__text': _('This field is required.')
+                },
+                code='required',
+            )
         data = Translation.get_cached_public_translations(langtag, namespace)
         return Response(data)
 
@@ -121,9 +129,19 @@ class PrivateTranslationRawList(generics.ListAPIView):
         langtag = request.query_params.get('bcp47__langtag')
         namespace = request.query_params.get('key__namespace__text')
         if langtag is None:
-            raise ValidationError({'bcp47__lang': _('This field is required.')}, code='required')
+            raise ValidationError(
+                {
+                    'bcp47__lang': _('This field is required.')
+                },
+                code='required',
+            )
         if namespace is None:
-            raise ValidationError({'key__namespace__text': _('This field is required.')}, code='required')
+            raise ValidationError(
+                {
+                    'key__namespace__text': _('This field is required.')
+                },
+                code='required',
+            )
         data = Translation.get_cached_private_translations(langtag, namespace)
         return Response(data)
 
@@ -133,7 +151,10 @@ class PrivateTranslationRawList(generics.ListAPIView):
 
 class PublicTranslationRetrieve(generics.RetrieveAPIView):
     """Public endpoint to retrieve single translation"""
-    queryset = Translation.objects.filter(key__public=True, bcp47__enabled=True)
+    queryset = Translation.objects.filter(
+        key__public=True,
+        bcp47__enabled=True,
+    )
     serializer_class = TranslationSerializer
     lookup_field = 'key__text'
     lookup_value_regex = '[-\w]+'
@@ -194,18 +215,6 @@ class BestlangtagList(APIView):
     # TODO: add default boolean firld to langs and order by default
     # pylint: disable=unused-argument
     def get(self, request, **kwargs):
-        enabledlangs = []
-        for bcp47instance in BCP47.objects.filter(enabled=True):
-            enabledlangs.append(bcp47instance.langtag)
-
         accept = request.META.get('HTTP_ACCEPT_LANGUAGE', '')
-        data = []
-        for accept_lang, _ in parse_accept_lang_header(accept):
-            match = best_match(accept_lang, enabledlangs)
-            data.append({
-                'langtag': match[0],
-                'score': match[1],
-                'accept_lang': accept_lang,
-            })
-        # results = BestlangtagSerializer(data, many=True).data
+        data = best_langtag_list(accept)
         return Response(data)

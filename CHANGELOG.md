@@ -6,6 +6,12 @@
 
 - TODO
 
+## [v1.2.4] - 2020-06-25
+
+### Changed
+
+- Separate best langtag logic from view
+
 ## [v1.2.3] - 2020-05-08
 
 ### Added
