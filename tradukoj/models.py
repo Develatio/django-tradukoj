@@ -24,14 +24,34 @@ from django.db import models
 # Future use
 # from django.db import DEFAULT_DB_ALIAS, connections
 from django.core.cache import cache
+from django.utils.translation.trans_real import parse_accept_lang_header
 import polib
+from langcodes import best_match
+
+
+def best_langtag_list(accept):
+    enabledlangs = []
+    for bcp47instance in BCP47.objects.filter(enabled=True):
+        enabledlangs.append(bcp47instance.langtag)
+
+    data = []
+    for accept_lang, _ in parse_accept_lang_header(accept):
+        match = best_match(accept_lang, enabledlangs)
+        data.append({
+            'langtag': match[0],
+            'score': match[1],
+            'accept_lang': accept_lang,
+        })
+    return data
 
 
 class BCP47(models.Model):
     DIRECTION_LTR = 0
     DIRECTION_RTL = 1
-    DIRECTION_CHOICES = ((DIRECTION_LTR, 'Left to Right (LTR)'),
-                         (DIRECTION_RTL, 'Right to Left (RTL)'))
+    DIRECTION_CHOICES = (
+        (DIRECTION_LTR, 'Left to Right (LTR)'),
+        (DIRECTION_RTL, 'Right to Left (RTL)'),
+    )
 
     langtag = models.CharField(
         max_length=255,
